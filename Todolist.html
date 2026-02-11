@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif; /* Easy to update: Change font family */
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); /* Easy to update: Change background gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            color: #ff6b6b; /* Easy to update: Change title color */
+        }
+
+        .input-section {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        #task-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            font-size: 1rem;
+        }
+
+        #add-task {
+            padding: 0.75rem 1rem;
+            background-color: #ff6b6b; /* Easy to update: Change button color */
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #add-task:hover {
+            background-color: #ff5252; /* Easy to update: Change hover color */
+        }
+
+        .task-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background-color: #f9f9f9; /* Easy to update: Change task background */
+            border-radius: 5px;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.3s;
+        }
+
+        .task.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .task-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .task-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .complete-btn, .delete-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .complete-btn {
+            background-color: #4ecdc4; /* Easy to update: Change complete button color */
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #ff6b6b; /* Easy to update: Change delete button color */
+            color: white;
+        }
+
+        .complete-btn:hover {
+            background-color: #45b7aa; /* Easy to update: Change hover */
+        }
+
+        .delete-btn:hover {
+            background-color: #ff5252; /* Easy to update: Change hover */
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 480px) {
+            .input-section {
+                flex-direction: column;
+            }
+            #task-input {
+                border-radius: 5px;
+                margin-bottom: 0.5rem;
+            }
+            #add-task {
+                border-radius: 5px;
+            }
+            .task {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .task-buttons {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My To-Do List</h1> <!-- Easy to update: Change title -->
+        <div class="input-section">
+            <input type="text" id="task-input" placeholder="Add a new task..."> <!-- Easy to update: Change placeholder -->
+            <button id="add-task">Add Task</button>
+        </div>
+        <ul class="task-list" id="task-list">
+            <!-- Tasks will be added here dynamically -->
+        </ul>
+    </div>
+    <script>
+        // DOM Elements
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task');
+        const taskList = document.getElementById('task-list');
+
+        // Load tasks from localStorage (easy to update: Change storage key)
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // Render tasks
+        function renderTasks() {
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = `task ${task.completed ? 'completed' : ''}`;
+                li.innerHTML = `
+                    <span class="task-text">${task.text}</span> <!-- Easy to update: Customize task display -->
+                    <div class="task-buttons">
+                        <button class="complete-btn" data-index="${index}">Complete</button>
+                        <button class="delete-btn" data-index="${index}">Delete</button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+
+        // Add task
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                tasks.push({ text: taskText, completed: false }); // Easy to update: Add more properties (e.g., priority)
+                taskInput.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        // Toggle complete
+        function toggleComplete(index) {
+            tasks[index].completed = !tasks[index].completed; // Easy to update: Add animations or sounds
+            saveTasks();
+            renderTasks();
+        }
+
+        // Delete task
+        function deleteTask(index) {
+            tasks.splice(index, 1); // Easy to update: Add confirmation dialog
+            saveTasks();
+            renderTasks();
+        }
+
+        // Save to localStorage
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Event listeners
+        addTaskBtn.addEventListener('click', addTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask(); // Easy to update: Change key or add more shortcuts
+        });
+
+        taskList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('complete-btn')) {
+                toggleComplete(e.target.dataset.index);
+            } else if (e.target.classList.contains('delete-btn')) {
+                deleteTask(e.target.dataset.index);
+            }
+        });
+
+        // Initial render
+        renderTasks();
+    </script>
+</body>
+</html>

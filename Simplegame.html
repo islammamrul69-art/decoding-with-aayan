@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Game</title>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif; /* Easy to update: Change font family */
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); /* Easy to update: Change background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            color: #0984e3; /* Easy to update: Change title color */
+        }
+
+        .status {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        /* Game Board */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 5px;
+            margin: 0 auto;
+            max-width: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #fff; /* Easy to update: Change cell background */
+            border: 2px solid #0984e3; /* Easy to update: Change border color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth hover effect */
+        }
+
+        .cell:hover {
+            background-color: #f1f2f6; /* Easy to update: Change hover color */
+        }
+
+        .cell.x {
+            color: #e17055; /* Easy to update: Change X color */
+        }
+
+        .cell.o {
+            color: #00b894; /* Easy to update: Change O color */
+        }
+
+        /* Reset Button */
+        #reset {
+            padding: 0.75rem 1.5rem;
+            background-color: #0984e3; /* Easy to update: Change button color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #reset:hover {
+            background-color: #74b9ff; /* Easy to update: Change hover color */
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 480px) {
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 1.5rem;
+            }
+            .board {
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+        <div class="status">Player X's turn</div> <!-- Easy to update: Change initial status text -->
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        <button id="reset">Reset Game</button> <!-- Easy to update: Add more buttons if needed -->
+    </div>
+    <script>
+        // Game Variables
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const status = document.querySelector('.status');
+        const resetButton = document.getElementById('reset');
+        let currentPlayer = 'X'; // Easy to update: Change starting player
+        let gameActive = true;
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+
+        // Winning combinations (easy to update: Add more for larger boards)
+        const winningConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        // Handle cell click
+        function handleCellClick(event) {
+            const clickedCell = event.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+            if (gameState[clickedCellIndex] !== '' || !gameActive) {
+                return;
+            }
+
+            gameState[clickedCellIndex] = currentPlayer;
+            clickedCell.textContent = currentPlayer;
+            clickedCell.classList.add(currentPlayer.toLowerCase());
+
+            checkResult();
+        }
+
+        // Check for win or draw
+        function checkResult() {
+            let roundWon = false;
+            for (let i = 0; i < winningConditions.length; i++) {
+                const winCondition = winningConditions[i];
+                let a = gameState[winCondition[0]];
+                let b = gameState[winCondition[1]];
+                let c = gameState[winCondition[2]];
+                if (a === '' || b === '' || c === '') {
+                    continue;
+                }
+                if (a === b && b === c) {
+                    roundWon = true;
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                status.textContent = `Player ${currentPlayer} wins!`; // Easy to update: Customize win message
+                gameActive = false;
+                return;
+            }
+
+            let roundDraw = !gameState.includes('');
+            if (roundDraw) {
+                status.textContent = 'Draw!'; // Easy to update: Customize draw message
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // Easy to update: Change turn logic
+            status.textContent = `Player ${currentPlayer}'s turn`;
+        }
+
+        // Reset game
+        function resetGame() {
+            gameActive = true;
+            currentPlayer = 'X'; // Easy to update: Reset to starting player
+            gameState = ['', '', '', '', '', '', '', '', ''];
+            status.textContent = `Player ${currentPlayer}'s turn`;
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('x', 'o');
+            });
+        }
+
+        // Event listeners
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        resetButton.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>
